@@ -15,6 +15,12 @@ Once the install for uWebSocketIO is complete, the main program can be built and
 4. make
 5. ./UnscentedKF
 
+[//]: # (Image References)
+[image1]: ./UnderestimateLidarNIS.png
+[image2]: ./UnderestimateRadarNIS.png
+[image3]: ./GoodestimateLidarNIS.png
+[image4]: ./GoodestimateRadarNIS.png
+
 ## Other Important Dependencies
 * cmake >= 3.5
   * All OSes: [click here for installation instructions](https://cmake.org/install/)
@@ -36,6 +42,7 @@ Once the install for uWebSocketIO is complete, the main program can be built and
 from the simulator.
 
 ## Own project work based on original project respository
+
 ### Unscented Kalan filter code update
 The main code changes are:
 * ukf.cpp:
@@ -45,6 +52,58 @@ The main code changes are:
   * Update CalculateRMSE function
 * ukf.h:
   * Add variables for NIS_L and NIS_R for storing NIS values for Lidar and Radar respectively
+  
 ### Tuning the process noise parameters std_a_ and std_yawdd_
 * First I analyze the sensor measurement data and get the maximum acceleration and yaw acceleration is about 0.1m/s^2 and 0.14 rad/s^2, so I tried std_a_ = 0.05 and std_yadd_ = 0.07. It turns out the it is a little bit underestimate with NIS like this for Lidar and Radar respectively:
 
+![alt text][image1]
+
+![alt text][image2]
+
+And the RMSE is not good with very high values:
+
+| Item        		|     RMSE	        					| 
+|:---------------------:|:---------------------------------------------:| 
+| px         		| 0.18   							| 
+| py     	| 0.17	|
+| vx	    | 0.47 |
+| vy	| 0.38 |
+
+* Then I bumped up the parameters to std_a_ = 0.5 and std_yadd_ = 0.7. I am getting both good RMSE and NIS:
+
+![alt text][image3]
+
+![alt text][image4]
+
+And the RMSE is not good with very high values:
+
+| Item        		|     RMSE	        					| 
+|:---------------------:|:---------------------------------------------:| 
+| px         		| 0.06   							| 
+| py     	| 0.084	|
+| vx	    | 0.32 |
+| vy	| 0.23 |
+
+### Test with Lidar and Radar sensor measurements
+
+The compared results among UKF with Lidar and Radar only sensor measurements and sensor fusion UKF are:
+
+| Item        		|     Lidar Only UKF RMSE	    | Radar Only UKF RMSE  | Sensor Fusion UKF RMSE |
+|:---------------------:|:-------------------:|:-------------------:|:-------------------:|  
+| px       | 0.09   		| 0.14   		| 0.06   | 
+| py     	| 0.092	| 0.20	| 0.084	|
+| vx	    | 0.48 | 0.38	| 0.32	|
+| vy	| 0.234 | 0.232	| 0.23	|
+
+It is evident from above comparing that Lidar sensor is good at providing accuracy date of oject position of px and py while Radar sensor helps a lot to provide object velocity vx and vy. With sensor fusion UKF, it combines the advantages of both Lidar and Radar sensors to estimate the position and velocity of object.
+
+### Compare UKF with EKF
+
+| Item        		|     UKF RMSE	    | EKF RMSE  | 
+|:---------------------:|:-------------------:|:-------------------:|
+| px       | 0.06  		| 0.97   		|
+| py     	| 0.084	| 0.085	|
+| vx	    | 0.32 | 0.45	|
+| vy	| 0.23 | 0.44	|
+
+As we can see from above comparing result, UKF is better than EKF on sensor fusion results, especially in estimating vx and vy.
