@@ -84,7 +84,7 @@ And the RMSE is not good with very high values:
 | vx	    | 0.32 |
 | vy	| 0.23 |
 
-### Test with Lidar and Radar sensor measurements
+### Test UKF with Lidar and Radar only sensor measurements
 
 The compared results among UKF with Lidar and Radar only sensor measurements and sensor fusion UKF are:
 
